@@ -88,6 +88,7 @@ IntervalTimer refreshSensorTimer;
 volatile float angle = 0.0;
 volatile float encoderAngle = 0.0;
 volatile float gyroAngle = 0.0;
+volatile float offsetAngle = 0;
 
 //Different move types
 volatile enum {
@@ -953,10 +954,8 @@ void forwardCorrection() {
     prevCorrection = 4;
     afterTurnAround = false;
     firstCell = false;
+    offsetAngle = encoderAngle;
   }
-  //  myDisplay.clear();
-  //  myDisplay.setCursor(0);
-  //  myDisplay.print(leftBaseSpeed);
 }
 
 void solve() {

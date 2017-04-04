@@ -187,7 +187,17 @@ void curveTurn() {
   const int tickStop = 1900;
 
   if (time == 0) {
-    angle = 90.0;
+    if (wallFront()) {
+      angle = 90.0;
+    }
+    else {
+      if (moveType == TURN_LEFT) {
+        angle = 90.0 + offsetAngle;
+      }
+      else {
+        angle = 90.0 - offsetAngle;
+      }
+    }
     // Do initial calculations at the beginning
     angularAccel = ((7.4755 * pow(angle, -.383)) * goalSpeed);
     angularAccel *= angularAccel / radius;
@@ -257,13 +267,13 @@ void curveTurn() {
 
   if (moveType == TURN_RIGHT) {
     if (straight == false && time > totalTimeActual - 1) {
-//      encoderAngle = 90;
+      encoderAngle = 90;
       targetAngle = 90;
     }
   }
   if (moveType == TURN_LEFT) {
     if (straight == false && time > totalTimeActual - 1) {
-//      encoderAngle = -90;
+      encoderAngle = -90;
       targetAngle = -90;
     }
   }
@@ -292,9 +302,9 @@ void curveTurn() {
         continueTurn = false;
       }
     }
-//    if ((rightTicks + leftTicks) / 2 > 1500  || (leftFront + rightFront) / 2 > frontStop) {//used to be 1500 ticks
-//      continueTurn = false;
-//    }
+    //    if ((rightTicks + leftTicks) / 2 > 1500  || (leftFront + rightFront) / 2 > frontStop) {//used to be 1500 ticks
+    //      continueTurn = false;
+    //    }
   }
 
   if ((targetAngle == 0 || abs(targetAngle) == 90) && wallFront()) {
@@ -333,6 +343,7 @@ void curveTurn() {
     time = 0;
     angle = 0.0;
     encoderAngle = 0;
+    offsetAngle = 0;
     prevRightTicks -= rightTicks;
     prevLeftTicks -= leftTicks;
     rightTicks = 0;
@@ -386,12 +397,12 @@ void pivotTurnRight90() {
   while (targetAngle <= targetDegrees) {
     readGyro();
     getSpeed();
-//    Serial3.print(leftSpeed); Serial3.print(",");Serial3.println(rightSpeed);
+    //    Serial3.print(leftSpeed); Serial3.print(",");Serial3.println(rightSpeed);
     readEncoderAngle();
     delay(1);
-//    myDisplay.setCursor(0);
-//    myDisplay.clear();
-//    myDisplay.print(encoderAngle);
+    //    myDisplay.setCursor(0);
+    //    myDisplay.clear();
+    //    myDisplay.print(encoderAngle);
     targetAngle = encoderAngle;
     setLeftPWM(turnSpeed);
     setRightPWM(-turnSpeed);
