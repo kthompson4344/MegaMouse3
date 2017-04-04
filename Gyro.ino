@@ -17,7 +17,6 @@ void readGyro() {
 
   //Ignore the gyro if our angular velocity does not meet our threshold
   if (gyroRate >= rotationThreshold || gyroRate <= -rotationThreshold) {
-    //This line divides the value by 100 since we are running in a 10ms loop (1000ms/10ms)
     gyroRate /= 1000.0;
     angle += gyroRate;
   }
@@ -30,4 +29,17 @@ void setupGyro() {
   }
   gyroZeroVoltage /= 1000;
 }
+
+void readEncoderAngle() {
+  const float wheelDist = 60;//mm
+//  const float wheelDist = 68.73;//mm
+//  const float wheelDist = 79.0;//mm
+  float encoderRate = (leftSpeed - rightSpeed) / wheelDist;
+  encoderRate /= 20;
+  if (encoderRate < 0) {
+    encoderRate *= .95;
+  }
+  encoderAngle += encoderRate;
+}
+
 
