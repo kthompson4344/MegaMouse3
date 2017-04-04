@@ -188,8 +188,8 @@ void loop() {
   //1 cell wall forward: 750raw,
   //start of cell wall left:
   //start of cell wall right:
-//    myDisplay.clear();
-//    myDisplay.setCursor(0);
+  //    myDisplay.clear();
+  //    myDisplay.setCursor(0);
   //  myDisplay.print(rightTicks - leftTicks);
   //    myDisplay.print((rightTicks + leftTicks) / 2);
   //    myDisplay.print(rightMiddleValue - leftMiddleValue);
@@ -203,8 +203,8 @@ void loop() {
   //  myDisplay.print(rightFront);
   //      myDisplay.print(1 * (rightFrontRaw - leftFrontRaw  +300));
   //  Serial.print("Angle: "); Serial.print(angle); Serial.print("   EncoderAngle: "); Serial.println(encoderAngle);
-//    myDisplay.print(encoderAngle);
-//    delay(10);
+  //    myDisplay.print(encoderAngle);
+  //    delay(10);
   //  while (angle < 90) {
   //    setLeftPWM(300);
   //    setRightPWM(-300);
@@ -256,11 +256,11 @@ void loop() {
   //  }
 
   algo.solve(&interface);
-//rightWallFollow();
-//turnAround();
-//  pivotTurnRight90();
-//  delay(1000);
-//  while(1);
+  //rightWallFollow();
+  //turnAround();
+  //  pivotTurnRight90();
+  //  delay(1000);
+  //  while(1);
   //  delay(1);
   //  setLeftPWM(200);
   //  setRightPWM(200);
@@ -547,6 +547,7 @@ void turnAround() {
   int errorD;
   int totalError;
   bool front;
+  int waitTime = 50;
   //  gyroZeroVoltage = 1.56;
   //  leftBaseSpeed = 200;
   //  rightBaseSpeed = 200;
@@ -582,7 +583,7 @@ void turnAround() {
           rightBaseSpeed = 0;
           setLeftPWM(0);
           setRightPWM(0);
-          delay(200);
+          delay(waitTime);
           break;
         }
       }
@@ -621,7 +622,7 @@ void turnAround() {
           rightBaseSpeed = 0;
           setLeftPWM(0);
           setRightPWM(0);
-          delay(200);
+          delay(waitTime);
           break;
         }
       }
@@ -649,12 +650,12 @@ void turnAround() {
   delayMicroseconds(80);
   // Read right front sensor, then turn it off.
   haveSensorReading = false;
-      while (!haveSensorReading) {
-        readSensors();
-        delayMicroseconds(80);
-      }
+  while (!haveSensorReading) {
+    readSensors();
+    delayMicroseconds(80);
+  }
   if (wallFront()) {
-    while (i < 200) {
+    while (i < waitTime) {
       //TODO (this is a hack and shouldn't be here, but it makes it work)
       haveSensorReading = false;
       while (!haveSensorReading) {
@@ -666,52 +667,51 @@ void turnAround() {
       }
       else {
         if ((leftFrontRaw + rightFrontRaw) / 2 > 2500) {
-          setLeftPWM(int(3 * (3800 - leftFrontRaw)));
-          setRightPWM(int(3 * (3770 - rightFrontRaw)));
-        }
-        else if ((leftFrontRaw + rightFrontRaw) / 2 > 400) {
           setLeftPWM(int(2 * (3800 - leftFrontRaw)));
           setRightPWM(int(2 * (3770 - rightFrontRaw)));
         }
+        else if ((leftFrontRaw + rightFrontRaw) / 2 > 400) {
+          setLeftPWM(int(1 * (3800 - leftFrontRaw)));
+          setRightPWM(int(1 * (3770 - rightFrontRaw)));
+        }
         else {
-          setLeftPWM(int(1 * (3710 - leftFrontRaw)));
-          setRightPWM(int(1 * (3680 - rightFrontRaw)));
+          setLeftPWM(int(.5 * (3710 - leftFrontRaw)));
+          setRightPWM(int(.5 * (3680 - rightFrontRaw)));
         }
       }
       i++;
       delay(1);
     }
-    i=0;
+    i = 0;
     setLeftPWM(0);
     setRightPWM(0);
-    while (i < 200) {
+    while (i < waitTime) {
       //TODO (this is a hack and shouldn't be here, but it makes it work)
       haveSensorReading = false;
       while (!haveSensorReading) {
         readSensors();
         delayMicroseconds(80);
       }
-        setLeftPWM(int(10 * (rightFrontRaw - leftFrontRaw)));
-        setRightPWM(int(10 * (leftFrontRaw - rightFrontRaw)));
+      setLeftPWM(int(10 * (rightFrontRaw - leftFrontRaw)));
+      setRightPWM(int(10 * (leftFrontRaw - rightFrontRaw)));
       i++;
       delay(1);
     }
     setLeftPWM(0);
     setRightPWM(0);
   }
-  setupGyro();
   pivotTurnRight90();
   //  myDisplay.print("Done");
 
   //use only for pivotTurn90
   i = 0;
   haveSensorReading = false;
-      while (!haveSensorReading) {
-        readSensors();
-        delayMicroseconds(80);
-      }
+  while (!haveSensorReading) {
+    readSensors();
+    delayMicroseconds(80);
+  }
   if (wallFront()) {
-    while (i < 200) {
+    while (i < waitTime) {
       //TODO (this is a hack and shouldn't be here, but it makes it work)
       haveSensorReading = false;
       while (!haveSensorReading) {
@@ -723,16 +723,16 @@ void turnAround() {
       }
       else {
         if ((leftFrontRaw + rightFrontRaw) / 2 > 2500) {
-          setLeftPWM(int(3 * (3800 - leftFrontRaw)));
-          setRightPWM(int(3 * (3770 - rightFrontRaw)));
-        }
-        else if ((leftFrontRaw + rightFrontRaw) / 2 > 400) {
           setLeftPWM(int(2 * (3800 - leftFrontRaw)));
           setRightPWM(int(2 * (3770 - rightFrontRaw)));
         }
-        else {
+        else if ((leftFrontRaw + rightFrontRaw) / 2 > 400) {
           setLeftPWM(int(1 * (3800 - leftFrontRaw)));
           setRightPWM(int(1 * (3770 - rightFrontRaw)));
+        }
+        else {
+          setLeftPWM(int(.5 * (3800 - leftFrontRaw)));
+          setRightPWM(int(.5 * (3770 - rightFrontRaw)));
         }
       }
       i++;
@@ -741,47 +741,46 @@ void turnAround() {
     setLeftPWM(0);
     setRightPWM(0);
     i = 0;
-    while (i < 200) {
+    while (i < waitTime) {
       //TODO (this is a hack and shouldn't be here, but it makes it work)
       haveSensorReading = false;
       while (!haveSensorReading) {
         readSensors();
         delayMicroseconds(80);
       }
-        setLeftPWM(int(10 * (rightFrontRaw - leftFrontRaw)));
-        setRightPWM(int(10 * (leftFrontRaw - rightFrontRaw)));
+      setLeftPWM(int(10 * (rightFrontRaw - leftFrontRaw)));
+      setRightPWM(int(10 * (leftFrontRaw - rightFrontRaw)));
       i++;
       delay(1);
     }
   }
   setLeftPWM(0);
   setRightPWM(0);
-  setupGyro();
   pivotTurnRight90();
 
   //Insert side wall correction here
   i = 0;
-//  if (wallLeft() || wallRight()) {
-//    while (i < 200) {
-//      //TODO (this is a hack and shouldn't be here, but it makes it work)
-//      haveSensorReading = false;
-//      while (!haveSensorReading) {
-//        readSensors();
-//        delayMicroseconds(80);
-//      }
-//      int value = 3;
-//      if (wallLeft()) {
-//        setLeftPWM(int(value * (leftMiddleValue - 1000)));
-//        setRightPWM(int(value * (1000 - leftMiddleValue)));
-//      }
-//      else {
-//        setLeftPWM(int(value * (1000 - rightMiddleValue)));
-//        setRightPWM(int(value * (rightMiddleValue - 1000)));
-//      }
-//      i++;
-//      delay(1);
-//    }
-//  }
+  //  if (wallLeft() || wallRight()) {
+  //    while (i < 200) {
+  //      //TODO (this is a hack and shouldn't be here, but it makes it work)
+  //      haveSensorReading = false;
+  //      while (!haveSensorReading) {
+  //        readSensors();
+  //        delayMicroseconds(80);
+  //      }
+  //      int value = 3;
+  //      if (wallLeft()) {
+  //        setLeftPWM(int(value * (leftMiddleValue - 1000)));
+  //        setRightPWM(int(value * (1000 - leftMiddleValue)));
+  //      }
+  //      else {
+  //        setLeftPWM(int(value * (1000 - rightMiddleValue)));
+  //        setRightPWM(int(value * (rightMiddleValue - 1000)));
+  //      }
+  //      i++;
+  //      delay(1);
+  //    }
+  //  }
   prevRightTicks = 0;
   prevLeftTicks = 0;
   angle = 0.0;
@@ -802,13 +801,13 @@ void straightCorrection(bool left, bool right, bool front) {
   }
   else if (right) {
     // Only right wall
-    errorP = 10 * (1000 - rightMiddleValue) - 10* encoderAngle;
+    errorP = 10 * (1000 - rightMiddleValue) - 10 * encoderAngle;
   }
   else if (left) {
     // Only left wall
     // errorP = 2 * (leftMiddleValue - leftSensor + 1200) + 100 * (angle - targetAngle);
 
-    errorP = 10 * (leftMiddleValue - 1000) - 10* encoderAngle;
+    errorP = 10 * (leftMiddleValue - 1000) - 10 * encoderAngle;
   }
   else {
     //read Gyro? TODO

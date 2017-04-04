@@ -1,161 +1,161 @@
-void turnCorrection() {
-  static double oldErrorP;
-  double errorD;
-  double totalError;
-  double Kp = 10;
-  //double Kd = 10;
-  double targetAngle;
-  //long long start = millis();
-  //int timeConst = 2 * turnSpeed; //ms 2
-  static int i = 0;
-  static bool continueTurn = true;
-  static bool turn = false;
-  static bool straight = false;
-  static bool wallInFront = false;
-  accelerate = false;
-  if (i == 0) {
-    gyroSensitivity = .0037;
-    myDisplay.clear();
-    angle = 0;
-    encoderAngle = 0;
-    //    myDisplay.setCursor(0);
-    //    myDisplay.clear();
-    //    if (moveType == TURN_RIGHT) {
-    //      //      myDisplay.print("RGHT");
-    //    }
-    //    else {
-    //      //      myDisplay.print("LEFT");
-    //    }
-  }
-  if (turn == false) {
-    if (wallFront()) {
-      wallInFront = true;
-      targetAngle = 0;// TODO do forward correction during this part?
-      if ((rightFront + leftFront) / 2 > frontStop) {
-        turn = true;
-        i = 1;
-        //        i = round(pow(11.346 * abs(angleConst*(rightFront - leftFront)),0.5492));//how does R-L relate to angle?
-        //                angle = 1*(rightFrontRaw - leftFrontRaw);
-        //        angle = 0.0;
-      }
-    }
-    else {
-      //      myDisplay.setCursor(0);
-      //      myDisplay.clear();
-      //      myDisplay.print("NoWF");
-      if ((leftTicks + rightTicks) / 2 >= 1500) {//TODO Find this value, add correction
-        //        if ((moveType == TURN_RIGHT && !wallRight()) || moveType == TURN_LEFT && !wallLeft()) {
-        turn = true;
-        i = 1;
-        //          angle = 0.0;
-        //        }
-      }
-    }
-    //turn = true;
-  }
-  else {
-    if (moveType == TURN_RIGHT) {
-      targetAngle = curve5[i];
-    }
-    else {
-      targetAngle = -curve5[i];
-    }
-  }
-  if (moveType == TURN_RIGHT) {
-    //    if (straight == false && rightMiddleValue > 1250) {
-    //      angle = 90;
-    //      encoderAngle = 90;
-    //      targetAngle = 90;
-    //    }
-  }
-  if (moveType == TURN_LEFT) {
-    //    if (straight == false && leftMiddleValue > 1250) {
-    //      angle = -90;
-    //      encoderAngle = -90;
-    //      targetAngle = -90;
-    //    }
-  }
-
-  if (straight == false && abs(targetAngle) == 90) {
-    prevRightTicks -= rightTicks;
-    prevLeftTicks -= leftTicks;
-    rightTicks = 0;
-    leftTicks = 0;
-    straight = true;
-  }
-  if (straight == true) {
-    if (moveType == TURN_RIGHT) {
-      targetAngle = 90;
-    }
-    else {
-      targetAngle = -90;
-    }
-    if ((rightTicks + leftTicks) / 2 > 1500  || (leftFront + rightFront) / 2 > frontStop) {//TODO CHECK THIS TICK VALUE
-      continueTurn = false;
-    }
-  }
-
-  if ((targetAngle == 0 || abs(targetAngle) == 90) && wallFront()) {
-    errorP = .02 * (rightFrontRaw - leftFrontRaw) + targetAngle - encoderAngle;
-    //    errorP = 2 * (rightFront - leftFront);
-    //        errorP = targetAngle - angle;
-    //        errorP = .5 * (rightFront - leftFront - 0.0) + targetAngle - angle;
-  }
-  else {
-    errorP = targetAngle - encoderAngle;
-  }
-  errorD = errorP - oldErrorP;
-  totalError = 18 * errorP + 10 * errorD;
-  // Calculate PWM based on Error
-  currentLeftPWM = leftBaseSpeed + int(totalError);
-  currentRightPWM = rightBaseSpeed - int(totalError);
-  //    myDisplay.setCursor(0);
-  //    myDisplay.clear();
-  //    myDisplay.print(totalError);
-  //    // Update Motor PWM values
-  setLeftPWM(currentLeftPWM);
-  setRightPWM(currentRightPWM);
-
-  if (i == 50) {
-    //    myDisplay.clear();
-  }
-  if (continueTurn) {
-    if (!straight) {
-      i++;
-    }
-  }
-  else {
-    i = 0;
-    //    if (moveType == TURN_RIGHT) {
-    //      angle -= 90;
-    //      encoderAngle -= 90;
-    //    }
-    //    else {
-    //      angle += 90;
-    //      encoderAngle += 90;
-    //    }
-    angle = 0;
-    encoderAngle = 0;
-    //    prevRightTicks -= rightTicks;
-    //    prevLeftTicks -= leftTicks;
-    gyroSensitivity = .0036;
-    prevRightTicks -= rightTicks;
-    prevLeftTicks -= leftTicks;
-    rightTicks = 0;
-    leftTicks = 0;
-    moveType = NO;
-    walls_global[0] = wallLeft();
-    walls_global[1] = wallFront();
-    walls_global[2] = wallRight();
-    currentMoveDone = true;
-    //needMove = true;
-    //straight = false;
-    turn = false;
-    straight = false;
-    continueTurn = true;
-    wallInFront = false;
-  }
-}
+//void turnCorrection() {
+//  static double oldErrorP;
+//  double errorD;
+//  double totalError;
+//  double Kp = 10;
+//  //double Kd = 10;
+//  double targetAngle;
+//  //long long start = millis();
+//  //int timeConst = 2 * turnSpeed; //ms 2
+//  static int i = 0;
+//  static bool continueTurn = true;
+//  static bool turn = false;
+//  static bool straight = false;
+//  static bool wallInFront = false;
+//  accelerate = false;
+//  if (i == 0) {
+//    gyroSensitivity = .0037;
+//    myDisplay.clear();
+//    angle = 0;
+//    encoderAngle = 0;
+//    //    myDisplay.setCursor(0);
+//    //    myDisplay.clear();
+//    //    if (moveType == TURN_RIGHT) {
+//    //      //      myDisplay.print("RGHT");
+//    //    }
+//    //    else {
+//    //      //      myDisplay.print("LEFT");
+//    //    }
+//  }
+//  if (turn == false) {
+//    if (wallFront()) {
+//      wallInFront = true;
+//      targetAngle = 0;// TODO do forward correction during this part?
+//      if ((rightFront + leftFront) / 2 > frontStop) {
+//        turn = true;
+//        i = 1;
+//        //        i = round(pow(11.346 * abs(angleConst*(rightFront - leftFront)),0.5492));//how does R-L relate to angle?
+//        //                angle = 1*(rightFrontRaw - leftFrontRaw);
+//        //        angle = 0.0;
+//      }
+//    }
+//    else {
+//      //      myDisplay.setCursor(0);
+//      //      myDisplay.clear();
+//      //      myDisplay.print("NoWF");
+//      if ((leftTicks + rightTicks) / 2 >= 1500) {//TODO Find this value, add correction
+//        //        if ((moveType == TURN_RIGHT && !wallRight()) || moveType == TURN_LEFT && !wallLeft()) {
+//        turn = true;
+//        i = 1;
+//        //          angle = 0.0;
+//        //        }
+//      }
+//    }
+//    //turn = true;
+//  }
+//  else {
+//    if (moveType == TURN_RIGHT) {
+//      targetAngle = curve5[i];
+//    }
+//    else {
+//      targetAngle = -curve5[i];
+//    }
+//  }
+//  if (moveType == TURN_RIGHT) {
+//    //    if (straight == false && rightMiddleValue > 1250) {
+//    //      angle = 90;
+//    //      encoderAngle = 90;
+//    //      targetAngle = 90;
+//    //    }
+//  }
+//  if (moveType == TURN_LEFT) {
+//    //    if (straight == false && leftMiddleValue > 1250) {
+//    //      angle = -90;
+//    //      encoderAngle = -90;
+//    //      targetAngle = -90;
+//    //    }
+//  }
+//
+//  if (straight == false && abs(targetAngle) == 90) {
+//    prevRightTicks -= rightTicks;
+//    prevLeftTicks -= leftTicks;
+//    rightTicks = 0;
+//    leftTicks = 0;
+//    straight = true;
+//  }
+//  if (straight == true) {
+//    if (moveType == TURN_RIGHT) {
+//      targetAngle = 90;
+//    }
+//    else {
+//      targetAngle = -90;
+//    }
+//    if ((rightTicks + leftTicks) / 2 > 1500  || (leftFront + rightFront) / 2 > frontStop) {//TODO CHECK THIS TICK VALUE
+//      continueTurn = false;
+//    }
+//  }
+//
+//  if ((targetAngle == 0 || abs(targetAngle) == 90) && wallFront()) {
+//    errorP = .02 * (rightFrontRaw - leftFrontRaw) + targetAngle - encoderAngle;
+//    //    errorP = 2 * (rightFront - leftFront);
+//    //        errorP = targetAngle - angle;
+//    //        errorP = .5 * (rightFront - leftFront - 0.0) + targetAngle - angle;
+//  }
+//  else {
+//    errorP = targetAngle - encoderAngle;
+//  }
+//  errorD = errorP - oldErrorP;
+//  totalError = 18 * errorP + 10 * errorD;
+//  // Calculate PWM based on Error
+//  currentLeftPWM = leftBaseSpeed + int(totalError);
+//  currentRightPWM = rightBaseSpeed - int(totalError);
+//  //    myDisplay.setCursor(0);
+//  //    myDisplay.clear();
+//  //    myDisplay.print(totalError);
+//  //    // Update Motor PWM values
+//  setLeftPWM(currentLeftPWM);
+//  setRightPWM(currentRightPWM);
+//
+//  if (i == 50) {
+//    //    myDisplay.clear();
+//  }
+//  if (continueTurn) {
+//    if (!straight) {
+//      i++;
+//    }
+//  }
+//  else {
+//    i = 0;
+//    //    if (moveType == TURN_RIGHT) {
+//    //      angle -= 90;
+//    //      encoderAngle -= 90;
+//    //    }
+//    //    else {
+//    //      angle += 90;
+//    //      encoderAngle += 90;
+//    //    }
+//    angle = 0;
+//    encoderAngle = 0;
+//    //    prevRightTicks -= rightTicks;
+//    //    prevLeftTicks -= leftTicks;
+//    gyroSensitivity = .0036;
+//    prevRightTicks -= rightTicks;
+//    prevLeftTicks -= leftTicks;
+//    rightTicks = 0;
+//    leftTicks = 0;
+//    moveType = NO;
+//    walls_global[0] = wallLeft();
+//    walls_global[1] = wallFront();
+//    walls_global[2] = wallRight();
+//    currentMoveDone = true;
+//    //needMove = true;
+//    //straight = false;
+//    turn = false;
+//    straight = false;
+//    continueTurn = true;
+//    wallInFront = false;
+//  }
+//}
 
 void curveTurn() {
   double errorP;
@@ -184,7 +184,7 @@ void curveTurn() {
   static float degrees = 0; //deg
   static float degreesPrev = 0; //deg
   static int time = 0; //ms
-  const int tickStop = 2000;
+  const int tickStop = 1900;
 
   if (time == 0) {
     angle = 90.0;
