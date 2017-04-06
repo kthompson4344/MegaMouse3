@@ -6,6 +6,7 @@
 #include "Algo.h"
 #include "QuadDecode.h"
 #include "QuadDecode_def.h"
+#include <EEPROM.h>
 Algo algo;
 Interface interface;
 
@@ -17,7 +18,7 @@ Interface interface;
 #define clockPin 13             // the display's clock pin
 #define enable 10               // the display's chip enable pin
 #define reset 9                 // the display's reset pin
-#define displayLength 4        // number of characters in the display
+#define displayLength 4         // number of characters in the display
 
 // create an instance of the LED display library:
 LedDisplay myDisplay = LedDisplay(dataPin, registerSelect, clockPin, enable, reset, displayLength);
@@ -99,7 +100,9 @@ volatile enum {
   TURN_AROUND = 4
 } moveType;
 
-const int buttonPin = 16;
+const int buttonPin = 30;
+
+bool recoverMaze = false;
 
 int sensorCounts = 0;
 
@@ -118,19 +121,10 @@ void setup() {
   setupMotors();
   setupSensors();
 
+  pinMode(buttonPin, INPUT_PULLUP);
 
-  //pinMode(buttonPin, INPUT_PULLUP);
-
-  // Wait for Button Press to Start
-  //  while (digitalRead(buttonPin) == 1) {
-  //  }//TODO Solder Button
-  //delay(3000);
-  //Start by placing hand in front of sensor (too sensitive)
-  //readSensors();
-  //while (rightFront < 3300 && rightMiddleValue < 3300 && rightSensor < 3300) {
-  //        readSensors();
-  //        Serial.println(leftSensor);
-  //}
+//  chooseMode();
+//  chooseSpeed();
   moveType = NO; //TODO just added 3/1/16
   //  delay(1000);
   //  myDisplay.setCursor(0);
@@ -168,7 +162,9 @@ void setup() {
 
   haveSensorReading = false;
   movesDoneAndWallsSet = true;
-
+  
+  attachInterrupt(buttonPin, resetPressed, FALLING);
+  
   //Runs every 1ms and controls mouse movements
   correctionTimer.priority(255);
   correctionTimer.begin(correction, 1000);
@@ -234,27 +230,30 @@ void loop() {
   //    setLeftPWM(300);
   //    setRightPWM(-300);
   //  }
-  //  setLeftPWM(0);
-  //  setRightPWM(0);
+//    setLeftPWM(300);
+//    setRightPWM(300);
   //  delay(1000);
 
   //  solve();
   //  rightWallFollow();
-
-  //  if (analogRead(A14) /4096.0 * 3.3 / 0.357 < 6.5) {
-  //    while(1) {
-  //      setLeftPWM(0);
-  //      setRightPWM(0);
-  //      myDisplay.clear();
-  //      myDisplay.setCursor(0);
-  //      myDisplay.print("bat");
-  //      delay(200);
-  //      myDisplay.clear();
-  //      myDisplay.setCursor(0);
-  //      myDisplay.print("");
-  //      delay(200);
-  //    }
-  //  }
+//    myDisplay.clear();
+//    myDisplay.setCursor(0);
+//    myDisplay.print(analogRead(A14));
+//    delay(1000);
+    if (analogRead(A14) /4096.0 * 3.3 / 0.357 < 6.5) {
+      while(1) {
+        setLeftPWM(0);
+        setRightPWM(0);
+        myDisplay.clear();
+        myDisplay.setCursor(0);
+        myDisplay.print("bat");
+        delay(200);
+        myDisplay.clear();
+        myDisplay.setCursor(0);
+        myDisplay.print("");
+        delay(200);
+      }
+    }
 
   algo.solve(&interface);
   //rightWallFollow();
@@ -712,7 +711,7 @@ void turnAround() {
     delayMicroseconds(80);
   }
   if (wallFront()) {
-    while (i < waitTime) {
+    while (i < waitTime + 100) {
       //TODO (this is a hack and shouldn't be here, but it makes it work)
       haveSensorReading = false;
       while (!haveSensorReading) {
@@ -724,16 +723,16 @@ void turnAround() {
       }
       else {
         if ((leftFrontRaw + rightFrontRaw) / 2 > 2500) {
-          setLeftPWM(int(2 * (3800 - leftFrontRaw)));
-          setRightPWM(int(2 * (3770 - rightFrontRaw)));
-        }
-        else if ((leftFrontRaw + rightFrontRaw) / 2 > 400) {
           setLeftPWM(int(1 * (3800 - leftFrontRaw)));
           setRightPWM(int(1 * (3770 - rightFrontRaw)));
         }
-        else {
+        else if ((leftFrontRaw + rightFrontRaw) / 2 > 1000) {
           setLeftPWM(int(.5 * (3800 - leftFrontRaw)));
           setRightPWM(int(.5 * (3770 - rightFrontRaw)));
+        }
+        else {
+          setLeftPWM(int(.2 * (3800 - leftFrontRaw)));
+          setRightPWM(int(.2 * (3770 - rightFrontRaw)));
         }
       }
       i++;
@@ -758,34 +757,14 @@ void turnAround() {
   setLeftPWM(0);
   setRightPWM(0);
   pivotTurnRight90();
-
-  //Insert side wall correction here
-  i = 0;
-  //  if (wallLeft() || wallRight()) {
-  //    while (i < 200) {
-  //      //TODO (this is a hack and shouldn't be here, but it makes it work)
-  //      haveSensorReading = false;
-  //      while (!haveSensorReading) {
-  //        readSensors();
-  //        delayMicroseconds(80);
-  //      }
-  //      int value = 3;
-  //      if (wallLeft()) {
-  //        setLeftPWM(int(value * (leftMiddleValue - 1000)));
-  //        setRightPWM(int(value * (1000 - leftMiddleValue)));
-  //      }
-  //      else {
-  //        setLeftPWM(int(value * (1000 - rightMiddleValue)));
-  //        setRightPWM(int(value * (rightMiddleValue - 1000)));
-  //      }
-  //      i++;
-  //      delay(1);
-  //    }
-  //  }
+  
   prevRightTicks = 0;
   prevLeftTicks = 0;
+  leftTicks = 0;
+  rightTicks = 0;
   angle = 0.0;
   encoderAngle = 0;
+  offsetAngle = 0;
 }
 
 void straightCorrection(bool left, bool right, bool front) {
@@ -798,7 +777,7 @@ void straightCorrection(bool left, bool right, bool front) {
   else if (right && left) {
     errorP = 10 * (leftMiddleValue - rightMiddleValue);
     angle = 0;
-    //    encoderAngle = 0;
+        encoderAngle = 0;
   }
   else if (right) {
     // Only right wall
@@ -1063,3 +1042,10 @@ void leftWallFollow() {
     movesBuffer[2] = 0;
   }
 }
+
+void resetPressed() {
+  if (!buttonPressed) {
+    buttonPressed = true;
+  }
+}
+

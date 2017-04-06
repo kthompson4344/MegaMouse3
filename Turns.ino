@@ -209,6 +209,7 @@ void curveTurn() {
     totalTimeActual = t1 + t2 + t3;
     degSPrev = 0;
     degreesPrev = 0;
+//    if (!wallFront())
     encoderAngle = 0;
   }
 
@@ -219,6 +220,16 @@ void curveTurn() {
       if ((rightFront + leftFront) / 2 > frontStop - 0) {
         turn = true;
         time = 1;
+        myDisplay.clear();
+        myDisplay.home();
+        myDisplay.print(angle);
+//        if (moveType == TURN_LEFT) {
+//        angle = 90.0 + offsetAngle;
+//      }
+//      else {
+//        angle = 90.0 - offsetAngle;
+//      }
+//      encoderAngle = 0;
         //        i = round(pow(11.346 * abs(angleConst*(rightFront - leftFront)),0.5492));//how does R-L relate to angle?
         //                angle = 1*(rightFrontRaw - leftFrontRaw);
         //        angle = 0.0;
@@ -232,6 +243,7 @@ void curveTurn() {
         //        if ((moveType == TURN_RIGHT && !wallRight()) || moveType == TURN_LEFT && !wallLeft()) {
         turn = true;
         time = 1;
+//        encoderAngle = 0;
       }
     }
     //turn = true;
@@ -316,6 +328,8 @@ void curveTurn() {
   else {
     errorP = targetAngle - encoderAngle;
   }
+  getSpeed();
+  setSpeed();
   errorD = errorP - oldErrorP;
   totalError = 40 * errorP + 10 * errorD;
   // Calculate PWM based on Error
@@ -328,18 +342,15 @@ void curveTurn() {
   setLeftPWM(currentLeftPWM);
   setRightPWM(currentRightPWM);
 
-  if (time == 50) {
-    myDisplay.clear();
-  }
+//  if (time == 200) {
+//    myDisplay.clear();
+//  }
   if (continueTurn) {
     if (!straight) {
       time++;
     }
   }
   else {
-    myDisplay.clear();
-    myDisplay.setCursor(0);
-    myDisplay.print("stop");
     time = 0;
     angle = 0.0;
     encoderAngle = 0;
@@ -369,7 +380,7 @@ void pivotTurnRight90() {
   int finishedCount = 0;
   // Gyro calibrated for each speed or turning is not accurate
   float degreesTraveled = 0;
-  const int turnSpeed = 250;
+  const int turnSpeed = 300;
   const float targetDegrees = 90;
   float targetAngle = 0;
   // const int turnSpeed = 45;
