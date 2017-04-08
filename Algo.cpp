@@ -4,6 +4,7 @@
 
 #include "Assert.h"
 #include "History.h"
+#include "kyleEEPROM.h"
 #include "Maze.h"
 #include "Mode.h"
 #include "Options.h"
@@ -14,6 +15,7 @@ extern volatile char movesBuffer[256];
 extern byte moveBufferIndex;
 extern volatile bool movesReady;
 extern volatile bool movesDoneAndWallsSet;
+extern volatile bool shouldWriteEEPROM;
 #endif
 
 void Algo::solve(Interface* interface) {
@@ -32,6 +34,8 @@ void Algo::solve(Interface* interface) {
     ASSERT_EQ(Maze::WIDTH, m_mouse->mazeWidth());
     ASSERT_EQ(Maze::HEIGHT, m_mouse->mazeHeight());
 
+    readEEPROM();
+    
     // Initialize the (perimeter of the) maze
     for (byte x = 0; x < Maze::WIDTH; x += 1) {
         for (byte y = 0; y < Maze::HEIGHT; y += 1) {
@@ -212,17 +216,14 @@ void Algo::step() {
     movesBuffer[moveBufferIndex] = '\0';
     movesReady = true;
 #endif
-
     // Update the mode if we've reached the destination
-    if (m_mode == Mode::CENTER && inCenter(m_x, m_y)) {
-#if (!SIMULATOR)
-        readWalls();
-//        moveForward();//TODO
-#endif
+    if (m_mode == Mode::CENTER && inCenter(m_x, m_y)) {   
         m_mode = Mode::ORIGIN;
+        shouldWriteEEPROM = true;
     }
     if (m_mode == Mode::ORIGIN && inOrigin(m_x, m_y)) {
         m_mode = Mode::CENTER;
+        shouldWriteEEPROM = true;
     }
 }
 

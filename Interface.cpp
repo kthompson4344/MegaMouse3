@@ -93,7 +93,7 @@ int Interface::mazeWidth() {
     PRINT("mazeWidth");
     READ_AND_RETURN_INT();
 #else
-    return 7;
+    return 16;
 #endif
 }
 
@@ -102,7 +102,7 @@ int Interface::mazeHeight() {
     PRINT("mazeHeight");
     READ_AND_RETURN_INT();
 #else
-    return 7;
+    return 16;
 #endif
 }
 

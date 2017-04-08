@@ -50,3 +50,44 @@ void chooseSpeed() {
     }
   }
 }
+
+void chooseAcceleration() {
+  int tickValue = 200;
+  myDisplay.clear();
+  myDisplay.setCursor(0);
+  myDisplay.print("Acce");
+  delay(400);
+  myDisplay.clear();
+  myDisplay.setCursor(0);
+  myDisplay.print("lera");
+  delay(400);
+  myDisplay.clear();
+  myDisplay.setCursor(0);
+  myDisplay.print("tion");
+  delay(400);
+  leftTicks = 0;
+  while(1) {
+    if (leftTicks > tickValue * 2) {
+      leftTicks = 0;
+    }
+    if (leftTicks > tickValue) {
+      accelerate = true;
+    }
+    else {
+      accelerate = false;
+    }
+    myDisplay.clear();
+    myDisplay.home();
+    if (accelerate) {
+      myDisplay.print("Yes ");
+    }
+    else {
+      myDisplay.print("No  ");
+    }
+    if (digitalRead(buttonPin) == 0) {
+      break;
+    }
+  }
+  leftTicks = 0;
+}
+

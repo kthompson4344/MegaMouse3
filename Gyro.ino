@@ -37,9 +37,7 @@ void readEncoderAngle() {
   float encoderRate = (leftSpeed - rightSpeed) / wheelDist;
   encoderRate /= 20;
   if (encoderRate < 0) {
-    encoderRate *= 1;
+    encoderRate *= .95;
   }
   encoderAngle += encoderRate;
 }
-
-

@@ -1,162 +1,3 @@
-//void turnCorrection() {
-//  static double oldErrorP;
-//  double errorD;
-//  double totalError;
-//  double Kp = 10;
-//  //double Kd = 10;
-//  double targetAngle;
-//  //long long start = millis();
-//  //int timeConst = 2 * turnSpeed; //ms 2
-//  static int i = 0;
-//  static bool continueTurn = true;
-//  static bool turn = false;
-//  static bool straight = false;
-//  static bool wallInFront = false;
-//  accelerate = false;
-//  if (i == 0) {
-//    gyroSensitivity = .0037;
-//    myDisplay.clear();
-//    angle = 0;
-//    encoderAngle = 0;
-//    //    myDisplay.setCursor(0);
-//    //    myDisplay.clear();
-//    //    if (moveType == TURN_RIGHT) {
-//    //      //      myDisplay.print("RGHT");
-//    //    }
-//    //    else {
-//    //      //      myDisplay.print("LEFT");
-//    //    }
-//  }
-//  if (turn == false) {
-//    if (wallFront()) {
-//      wallInFront = true;
-//      targetAngle = 0;// TODO do forward correction during this part?
-//      if ((rightFront + leftFront) / 2 > frontStop) {
-//        turn = true;
-//        i = 1;
-//        //        i = round(pow(11.346 * abs(angleConst*(rightFront - leftFront)),0.5492));//how does R-L relate to angle?
-//        //                angle = 1*(rightFrontRaw - leftFrontRaw);
-//        //        angle = 0.0;
-//      }
-//    }
-//    else {
-//      //      myDisplay.setCursor(0);
-//      //      myDisplay.clear();
-//      //      myDisplay.print("NoWF");
-//      if ((leftTicks + rightTicks) / 2 >= 1500) {//TODO Find this value, add correction
-//        //        if ((moveType == TURN_RIGHT && !wallRight()) || moveType == TURN_LEFT && !wallLeft()) {
-//        turn = true;
-//        i = 1;
-//        //          angle = 0.0;
-//        //        }
-//      }
-//    }
-//    //turn = true;
-//  }
-//  else {
-//    if (moveType == TURN_RIGHT) {
-//      targetAngle = curve5[i];
-//    }
-//    else {
-//      targetAngle = -curve5[i];
-//    }
-//  }
-//  if (moveType == TURN_RIGHT) {
-//    //    if (straight == false && rightMiddleValue > 1250) {
-//    //      angle = 90;
-//    //      encoderAngle = 90;
-//    //      targetAngle = 90;
-//    //    }
-//  }
-//  if (moveType == TURN_LEFT) {
-//    //    if (straight == false && leftMiddleValue > 1250) {
-//    //      angle = -90;
-//    //      encoderAngle = -90;
-//    //      targetAngle = -90;
-//    //    }
-//  }
-//
-//  if (straight == false && abs(targetAngle) == 90) {
-//    prevRightTicks -= rightTicks;
-//    prevLeftTicks -= leftTicks;
-//    rightTicks = 0;
-//    leftTicks = 0;
-//    straight = true;
-//  }
-//  if (straight == true) {
-//    if (moveType == TURN_RIGHT) {
-//      targetAngle = 90;
-//    }
-//    else {
-//      targetAngle = -90;
-//    }
-//    if ((rightTicks + leftTicks) / 2 > 1500  || (leftFront + rightFront) / 2 > frontStop) {//TODO CHECK THIS TICK VALUE
-//      continueTurn = false;
-//    }
-//  }
-//
-//  if ((targetAngle == 0 || abs(targetAngle) == 90) && wallFront()) {
-//    errorP = .02 * (rightFrontRaw - leftFrontRaw) + targetAngle - encoderAngle;
-//    //    errorP = 2 * (rightFront - leftFront);
-//    //        errorP = targetAngle - angle;
-//    //        errorP = .5 * (rightFront - leftFront - 0.0) + targetAngle - angle;
-//  }
-//  else {
-//    errorP = targetAngle - encoderAngle;
-//  }
-//  errorD = errorP - oldErrorP;
-//  totalError = 18 * errorP + 10 * errorD;
-//  // Calculate PWM based on Error
-//  currentLeftPWM = leftBaseSpeed + int(totalError);
-//  currentRightPWM = rightBaseSpeed - int(totalError);
-//  //    myDisplay.setCursor(0);
-//  //    myDisplay.clear();
-//  //    myDisplay.print(totalError);
-//  //    // Update Motor PWM values
-//  setLeftPWM(currentLeftPWM);
-//  setRightPWM(currentRightPWM);
-//
-//  if (i == 50) {
-//    //    myDisplay.clear();
-//  }
-//  if (continueTurn) {
-//    if (!straight) {
-//      i++;
-//    }
-//  }
-//  else {
-//    i = 0;
-//    //    if (moveType == TURN_RIGHT) {
-//    //      angle -= 90;
-//    //      encoderAngle -= 90;
-//    //    }
-//    //    else {
-//    //      angle += 90;
-//    //      encoderAngle += 90;
-//    //    }
-//    angle = 0;
-//    encoderAngle = 0;
-//    //    prevRightTicks -= rightTicks;
-//    //    prevLeftTicks -= leftTicks;
-//    gyroSensitivity = .0036;
-//    prevRightTicks -= rightTicks;
-//    prevLeftTicks -= leftTicks;
-//    rightTicks = 0;
-//    leftTicks = 0;
-//    moveType = NO;
-//    walls_global[0] = wallLeft();
-//    walls_global[1] = wallFront();
-//    walls_global[2] = wallRight();
-//    currentMoveDone = true;
-//    //needMove = true;
-//    //straight = false;
-//    turn = false;
-//    straight = false;
-//    continueTurn = true;
-//    wallInFront = false;
-//  }
-//}
-
 void curveTurn() {
   double errorP;
   static double oldErrorP;
@@ -197,6 +38,16 @@ void curveTurn() {
       else {
         angle = 90.0 - offsetAngle;
       }
+    }
+//    angle *= (-0.0003*goalSpeed + 1.12);
+    if (goalSpeed > 750) {
+      angle *= .75;
+    }
+    else if (goalSpeed > 590) {
+      angle *= .88;
+    }
+    else {
+      angle *= (-0.0003*goalSpeed + 1.12);
     }
     // Do initial calculations at the beginning
     angularAccel = ((7.4755 * pow(angle, -.383)) * goalSpeed);
@@ -278,13 +129,13 @@ void curveTurn() {
   }
 
   if (moveType == TURN_RIGHT) {
-    if (straight == false && time > totalTimeActual - 1) {
+    if (straight == false && (time > totalTimeActual - 1 || rightMiddleValue > 1250)) {
       encoderAngle = 90;
       targetAngle = 90;
     }
   }
   if (moveType == TURN_LEFT) {
-    if (straight == false && time > totalTimeActual - 1) {
+    if (straight == false && (time > totalTimeActual - 1 || leftMiddleValue > 1250)) {
       encoderAngle = -90;
       targetAngle = -90;
     }
@@ -498,51 +349,69 @@ void rightTurnFirstCell() {
 
   //Turn Around with no wall in front
 
-  const int tickValue = 50;
-  while (leftFront < frontLeftStop && rightFront < frontRightStop) {
-    // Only left wall
-    // errorP = 2 * (leftMiddleValue - leftSensor + 1200) + 100 * (angle - targetAngle);
-    //read Gyro? TODO
-    //errorP = 20 * (angle) + .5 * (leftSensor - leftWallDist);
-    errorD = errorP;
-
-    errorD = errorP;
-    totalError = straightKp * errorP + Kd * errorD;
-
-    // Calculate PWM based on Error
-    currentLeftPWM = leftBaseSpeed + totalError / 124;
-    currentRightPWM = rightBaseSpeed - totalError / 124;
-
-    // Update Motor PWM values
-    setLeftPWM(currentLeftPWM);
-    setRightPWM(currentRightPWM);
-
-    //TODO (this is a hack and shouldn't be here, but it makes it work)
-    haveSensorReading = false;
-    while (!haveSensorReading) {
-      readSensors();
-      delayMicroseconds(80);
-    }
-
+  int i = 0;
+  int waitTime = 200;
+  haveSensorReading = false;
+  while (!haveSensorReading) {
+    readSensors();
+    delayMicroseconds(80);
   }
-  setRightPWM(0);
+  if (wallFront()) {
+    while (i < waitTime + 100) {
+      //TODO (this is a hack and shouldn't be here, but it makes it work)
+      haveSensorReading = false;
+      while (!haveSensorReading) {
+        readSensors();
+        delayMicroseconds(80);
+      }
+      if ((leftFrontRaw + rightFrontRaw) / 2 < 100) {
+        break;
+      }
+      else {
+        if ((leftFrontRaw + rightFrontRaw) / 2 > 2500) {
+          setLeftPWM(int(1 * (3800 - leftFrontRaw)));
+          setRightPWM(int(1 * (3770 - rightFrontRaw)));
+        }
+        else if ((leftFrontRaw + rightFrontRaw) / 2 > 1000) {
+          setLeftPWM(int(.5 * (3800 - leftFrontRaw)));
+          setRightPWM(int(.5 * (3770 - rightFrontRaw)));
+        }
+        else {
+          setLeftPWM(int(.2 * (3800 - leftFrontRaw)));
+          setRightPWM(int(.2 * (3770 - rightFrontRaw)));
+        }
+      }
+      i++;
+      delay(1);
+    }
+    setLeftPWM(0);
+    setRightPWM(0);
+    i = 0;
+    while (i < waitTime) {
+      //TODO (this is a hack and shouldn't be here, but it makes it work)
+      haveSensorReading = false;
+      while (!haveSensorReading) {
+        readSensors();
+        delayMicroseconds(80);
+      }
+      setLeftPWM(int(10 * (rightFrontRaw - leftFrontRaw)));
+      setRightPWM(int(10 * (leftFrontRaw - rightFrontRaw)));
+      i++;
+      delay(1);
+    }
+  }
   setLeftPWM(0);
-  delay(200);
-
+  setRightPWM(0);
   pivotTurnRight90();
-
+  
+  prevRightTicks = 0;
+  prevLeftTicks = 0;
+  leftTicks = 0;
+  rightTicks = 0;
   angle = 0.0;
   encoderAngle = 0;
-  delay(200);
-  setLeftPWM(-150);
-  setRightPWM(-150);
-  delay(350);
-  for (int i = -150; i < 0; ++i) {
-    setLeftPWM(i);
-    setRightPWM(i);
-  }
-  delay(200);
-  firstCell = true;
+  offsetAngle = 0;
+  afterTurnAround = true;
   movesBuffer[0] = 'f';
 
 }
